@@ -15,3 +15,6 @@ COPY ./run.sh /code/run.sh
 
 # Expose port
 EXPOSE 8888
+
+# Run the service
+CMD [ "/bin/sh", "/code/run.sh" ]
