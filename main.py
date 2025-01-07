@@ -13,12 +13,14 @@ TRANSFORMERS_FLAVOR = 'transformers'
 
 model_location = './model'
 
+
 class PredictRequest(BaseModel):
     data: list
     predict_function: str = 'predict'
     convert_to_numpy: bool = True
     params: dict = None
     dtype: str = None
+
 
 # Load the model
 if MODEL_FLAVOR == PYFUNC_FLAVOR:
@@ -29,15 +31,15 @@ elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
     if mlflow.transformers.is_gpu_available():
         model = mlflow.transformers.load_model(
             model_location,
-            kwargs = {
-                'device_map' : 'auto'
+            kwargs={
+                'device_map': 'auto'
             }
         )
     else:
         model = mlflow.transformers.load_model(
             model_location,
-            kwargs = {
-                'device_map' : 'auto'
+            kwargs={
+                'device_map': 'auto'
             }
         )
 
@@ -59,7 +61,7 @@ def predict(body: PredictRequest):
     if body.predict_function == 'predict':
         try:
             if MODEL_FLAVOR == PYFUNC_FLAVOR:
-                results = model.predict(to_predict, params = body.params)
+                results = model.predict(to_predict, params=body.params)
             elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
                 if body.params:
                     results = model(to_predict, **body.params)
@@ -72,7 +74,7 @@ def predict(body: PredictRequest):
                 if isinstance(to_predict, np.ndarray):
                     to_predict = to_predict.reshape(-1, 1)
                 if MODEL_FLAVOR == PYFUNC_FLAVOR:
-                    results = model.predict(to_predict, params = body.params)
+                    results = model.predict(to_predict, params=body.params)
                 elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
                     if body.params:
                         results = model(to_predict, **body.params)
@@ -84,7 +86,7 @@ def predict(body: PredictRequest):
                 raise ValueError(
                     f'There was an error running `predict`: {str(e)}'
                 )
-            
+
     elif body.predict_function == 'predict_proba':
         try:
             results = model.predict_proba(to_predict)
@@ -95,12 +97,12 @@ def predict(body: PredictRequest):
                 raise ValueError(
                     f'There was an error running `predict_proba`: {str(e)}'
                 )
-            
+
     else:
         raise ValueError(
             'Only `predict` and `predict_proba` are supported prediction functions'
         )
-    
+
     if isinstance(results, np.ndarray):
         results = results.tolist()
 
