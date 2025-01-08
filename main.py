@@ -38,9 +38,6 @@ elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
     else:
         model = mlflow.transformers.load_model(
             model_location,
-            kwargs={
-                'device_map': 'auto'
-            }
         )
 
 app = FastAPI(docs_url=None, redoc_url=None)
