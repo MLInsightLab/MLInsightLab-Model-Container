@@ -18,8 +18,8 @@ class PredictRequest(BaseModel):
     data: list
     predict_function: str = 'predict'
     convert_to_numpy: bool = True
-    params: dict = None
-    dtype: str = None
+    params: dict | None = None
+    dtype: str | None = None
 
 
 # Load the model
