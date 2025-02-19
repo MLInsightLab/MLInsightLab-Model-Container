@@ -5,13 +5,16 @@ import mlflow
 import json
 import os
 
+# Model flavor variables
 MODEL_FLAVOR = os.environ['MODEL_FLAVOR']
-
 PYFUNC_FLAVOR = 'pyfunc'
 SKLEARN_FLAVOR = 'sklearn'
 TRANSFORMERS_FLAVOR = 'transformers'
 
+# Default location to save the model
 model_location = './model'
+
+# Base class for a prediction request
 
 
 class PredictRequest(BaseModel):
@@ -40,12 +43,20 @@ elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
             model_location,
         )
 
+
+# Set up the app
 app = FastAPI(docs_url=None, redoc_url=None)
+
+# Endpoint for prediction
 
 
 @app.post('/predict')
 def predict(body: PredictRequest):
+    """
+    Run prediction
+    """
 
+    # If convert to numpy and it's not a transformers model, convert accordingly
     if MODEL_FLAVOR != TRANSFORMERS_FLAVOR and body.convert_to_numpy:
         to_predict = np.array(body.data)
         if body.dtype:
@@ -53,8 +64,10 @@ def predict(body: PredictRequest):
     else:
         to_predict = body.data
 
+    # Set results as None as fallback
     results = None
 
+    # If predict, run through the logic for running predict for the various flavors supported
     if body.predict_function == 'predict':
         try:
             if MODEL_FLAVOR == PYFUNC_FLAVOR:
@@ -66,6 +79,8 @@ def predict(body: PredictRequest):
                     results = model(to_predict)
             elif MODEL_FLAVOR == SKLEARN_FLAVOR:
                 results = model.predict(to_predict)
+
+        # If there's an exception thrown, try reshaping the array and running prediction again
         except Exception:
             try:
                 if isinstance(to_predict, np.ndarray):
@@ -79,11 +94,14 @@ def predict(body: PredictRequest):
                         results = model(to_predict)
                 elif MODEL_FLAVOR == SKLEARN_FLAVOR:
                     results = model.predict(to_predict)
+
+            # If the exception is not effectively handled, raise an exception stating what the issue is
             except Exception as e:
                 raise ValueError(
                     f'There was an error running `predict`: {str(e)}'
                 )
 
+    # If the predict function is predict_proba, run the prediction logic
     elif body.predict_function == 'predict_proba':
         try:
             results = model.predict_proba(to_predict)
@@ -95,14 +113,17 @@ def predict(body: PredictRequest):
                     f'There was an error running `predict_proba`: {str(e)}'
                 )
 
+    # If the predict function is not a supported one, raise exception and state the cause
     else:
         raise ValueError(
             'Only `predict` and `predict_proba` are supported prediction functions'
         )
 
+    # Ensure response gets pushed back as a list for JSON compatibility
     if isinstance(results, np.ndarray):
         results = results.tolist()
 
+    # Return response
     return {
         'prediction': results
     }
