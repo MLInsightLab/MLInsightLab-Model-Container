@@ -113,6 +113,18 @@ def predict(body: PredictRequest):
                     f'There was an error running `predict_proba`: {str(e)}'
                 )
 
+    # If the predict function is transform, run the prediction logic
+    elif body.predict_function == 'transform':
+        try:
+            results = model.transform(to_predict)
+        except Exception:
+            try:
+                results = model.transform(to_predict.reshape(-1, 1))
+            except Exception as e:
+                raise ValueError(
+                    f'There was an error running `transform`: {str(e)}'
+                )
+
     # If the predict function is not a supported one, raise exception and state the cause
     else:
         raise ValueError(
