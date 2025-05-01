@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
 import mlflow
-import json
 import os
 
 # Model flavor variables
@@ -10,6 +9,7 @@ MODEL_FLAVOR = os.environ['MODEL_FLAVOR']
 PYFUNC_FLAVOR = 'pyfunc'
 SKLEARN_FLAVOR = 'sklearn'
 TRANSFORMERS_FLAVOR = 'transformers'
+HFHUB_FLAVOR = 'hfhub'
 
 # Default location to save the model
 model_location = './model'
@@ -42,6 +42,8 @@ elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
         model = mlflow.transformers.load_model(
             model_location,
         )
+elif MODEL_FLAVOR == HFHUB_FLAVOR:
+    pass
 
 
 # Set up the app
