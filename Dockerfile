@@ -3,7 +3,7 @@ FROM python:3.12-slim
 # Change the workdir
 WORKDIR /code
 
-# Copy and install python requirements
+# Copy and install basic python requirements
 COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade pip && \

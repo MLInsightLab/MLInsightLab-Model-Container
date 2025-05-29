@@ -1,7 +1,10 @@
+from transformers import pipeline, BitsAndBytesConfig
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
+import subprocess
 import mlflow
+import json
 import os
 
 # Model flavor variables
@@ -43,7 +46,33 @@ elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
             model_location,
         )
 elif MODEL_FLAVOR == HFHUB_FLAVOR:
-    pass
+
+    # Get any keyword arguments or other parameters
+    requirements = os.getenv('REQUIREMENTS')
+    if requirements:
+        subprocess.run(
+            [
+                'pip',
+                'install',
+                requirements
+            ]
+        )
+
+    kwargs = os.getenv('KWARGS')
+    if kwargs:
+        kwargs = json.loads(kwargs)
+    else:
+        kwargs = {}
+
+    quantization_kwargs = os.getenv('QUANTIZATION_KWARGS')
+    if quantization_kwargs:
+        quantization_kwargs = json.loads(quantization_kwargs)
+        bnb_config = BitsAndBytesConfig(**quantization_kwargs)
+        if not kwargs.get('model_kwargs'):
+            kwargs['model_kwargs'] = {}
+        kwargs['model_kwargs']['quantization_config'] = bnb_config
+
+    model = pipeline(**kwargs)
 
 
 # Set up the app
@@ -59,7 +88,7 @@ def predict(body: PredictRequest):
     """
 
     # If convert to numpy and it's not a transformers model, convert accordingly
-    if MODEL_FLAVOR != TRANSFORMERS_FLAVOR and body.convert_to_numpy:
+    if MODEL_FLAVOR not in [TRANSFORMERS_FLAVOR, HFHUB_FLAVOR] and body.convert_to_numpy:
         to_predict = np.array(body.data)
         if body.dtype:
             to_predict = to_predict.astype(body.dtype)
@@ -89,7 +118,7 @@ def predict(body: PredictRequest):
                     to_predict = to_predict.reshape(-1, 1)
                 if MODEL_FLAVOR == PYFUNC_FLAVOR:
                     results = model.predict(to_predict, params=body.params)
-                elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
+                elif MODEL_FLAVOR in [TRANSFORMERS_FLAVOR, HFHUB_FLAVOR]:
                     if body.params:
                         results = model(to_predict, **body.params)
                     else:
