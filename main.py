@@ -103,7 +103,7 @@ def predict(body: PredictRequest):
         try:
             if MODEL_FLAVOR == PYFUNC_FLAVOR:
                 results = model.predict(to_predict, params=body.params)
-            elif MODEL_FLAVOR == TRANSFORMERS_FLAVOR:
+            elif MODEL_FLAVOR in [TRANSFORMERS_FLAVOR, HFHUB_FLAVOR]:
                 if body.params:
                     results = model(to_predict, **body.params)
                 else:
