@@ -5,7 +5,7 @@ if [ "$MODEL_FLAVOR" != "hfhub" ]; then
     mlflow artifacts download --artifact-uri ${MODEL_URI} --dst-path ./model
 
     # Install python requirements for the model
-    pip install --upgrade -r ./model/requirements.txt
+    uv pip install --system --upgrade -r ./model/requirements.txt
 
 fi
 
