@@ -6,8 +6,8 @@ WORKDIR /code
 # Copy and install basic python requirements
 COPY ./requirements.txt /code/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip uv && \
+    uv pip install --system --no-cache-dir --upgrade -r /code/requirements.txt
 
 # Copy all required scripts
 COPY ./main.py /code/main.py
