@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir --upgrade pip uv && \
 
 # Copy all huggingface model requirements
 COPY ./hfhub_requirements.txt /code/hfhub_requirements.txt
+RUN uv pip install --system --upgrade -r /code/hfhub_requirements.txt
 
 # Copy all required scripts
 COPY ./main.py /code/main.py
