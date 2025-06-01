@@ -1,0 +1,7 @@
+transformers
+bitsandbytes
+torchvision
+accelerate
+tensorflow
+einops
+torch

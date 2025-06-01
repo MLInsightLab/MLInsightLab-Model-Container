@@ -1,12 +1,6 @@
 fastapi[standard]
 uvicorn[standard]
-transformers
-bitsandbytes
-torchvision
-accelerate
-tensorflow
 pydantic
 tf-keras
 mlflow
 numpy
-torch

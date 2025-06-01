@@ -1,6 +1,7 @@
 from transformers import pipeline, BitsAndBytesConfig
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import datetime as dt
 import numpy as np
 import subprocess
 import mlflow
@@ -29,6 +30,7 @@ class PredictRequest(BaseModel):
 
 
 # Load the model
+print(f'INFO {dt.datetime.now()}: LOADING MODEL\n')
 if MODEL_FLAVOR == PYFUNC_FLAVOR:
     model = mlflow.pyfunc.load_model(model_location)
 elif MODEL_FLAVOR == SKLEARN_FLAVOR:
@@ -50,6 +52,7 @@ elif MODEL_FLAVOR == HFHUB_FLAVOR:
     # Get any keyword arguments or other parameters
     requirements = os.getenv('REQUIREMENTS')
     if requirements:
+        print(f'INFO {dt.datetime.now()}: INSTALLING ADDITIONAL DEPENDENCIES\n')
         subprocess.run(
             [
                 'pip',
@@ -76,6 +79,7 @@ elif MODEL_FLAVOR == HFHUB_FLAVOR:
 
 
 # Set up the app
+print(f'INFO {dt.datetime.now()}: SERVING MODEL')
 app = FastAPI(docs_url=None, redoc_url=None)
 
 # Endpoint for prediction
