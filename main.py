@@ -30,7 +30,7 @@ class PredictRequest(BaseModel):
 
 
 # Load the model
-print(f'INFO {dt.datetime.now()}: LOADING MODEL\n')
+print(f'INFO {dt.datetime.now()}: DOWNLOADING MODEL')
 if MODEL_FLAVOR == PYFUNC_FLAVOR:
     model = mlflow.pyfunc.load_model(model_location)
 elif MODEL_FLAVOR == SKLEARN_FLAVOR:
@@ -91,6 +91,7 @@ def predict(body: PredictRequest):
     Run prediction
     """
 
+    print(f'INFO {dt.datetime.now()}: RUNNING PREDICT')
     # If convert to numpy and it's not a transformers model, convert accordingly
     if MODEL_FLAVOR not in [TRANSFORMERS_FLAVOR, HFHUB_FLAVOR] and body.convert_to_numpy:
         to_predict = np.array(body.data)
