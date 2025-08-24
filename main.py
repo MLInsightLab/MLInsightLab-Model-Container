@@ -22,7 +22,7 @@ model_location = './model'
 
 
 class PredictRequest(BaseModel):
-    data: list
+    inputs: list
     predict_function: str = 'predict'
     convert_to_numpy: bool = True
     params: dict | None = None
@@ -94,11 +94,11 @@ def predict(body: PredictRequest):
     print(f'INFO {dt.datetime.now()}: RUNNING PREDICT')
     # If convert to numpy and it's not a transformers model, convert accordingly
     if MODEL_FLAVOR not in [TRANSFORMERS_FLAVOR, HFHUB_FLAVOR] and body.convert_to_numpy:
-        to_predict = np.array(body.data)
+        to_predict = np.array(body.inputs)
         if body.dtype:
             to_predict = to_predict.astype(body.dtype)
     else:
-        to_predict = body.data
+        to_predict = body.inputs
 
     # Set results as None as fallback
     results = None
