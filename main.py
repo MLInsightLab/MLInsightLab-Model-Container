@@ -22,7 +22,7 @@ model_location = './model'
 
 
 class PredictRequest(BaseModel):
-    inputs: list
+    inputs: list | str | dict
     predict_function: str = 'predict'
     convert_to_numpy: bool = True
     params: dict | None = None
