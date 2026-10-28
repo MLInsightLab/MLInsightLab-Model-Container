@@ -36,3 +36,4 @@ All lifecycle management (startup, shutdown, scaling) is handled by the platform
 ---
 
 We welcome contributions and suggestions via issues or pull requests, especially around extensibility and model compatibility.
+
